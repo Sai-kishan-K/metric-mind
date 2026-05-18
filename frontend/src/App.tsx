@@ -95,7 +95,7 @@ export default function App() {
             <ChartBuilder chartType={chartType} setChartType={setChartType} />
 
             <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
-              <SuggestedCharts />
+              <SuggestedCharts recommendedCharts={uploadResult?.recommended_charts} />
               <DataChat prompt={prompt} setPrompt={setPrompt} />
             </div>
           </div>
