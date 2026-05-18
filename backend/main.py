@@ -2,6 +2,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException
 import pandas as pd
 from io import BytesIO
 
+from services.profiler import profile_dataframe
+
 app = FastAPI(
     title="DashPilot AI API",
     description="Backend API for AI-powered dashboard generation",
@@ -39,6 +41,9 @@ def read_uploaded_file(file: UploadFile, file_content: bytes) -> pd.DataFrame:
             detail="Unsupported file type. Please upload a CSV or Excel file."
         )
 
+    except HTTPException:
+        raise
+
     except Exception as error:
         raise HTTPException(
             status_code=400,
@@ -65,13 +70,15 @@ async def upload_file(file: UploadFile = File(...)):
         )
 
     preview_df = df.head(5).copy()
-
     preview_df = preview_df.where(pd.notnull(preview_df), None)
+
+    profile = profile_dataframe(df)
 
     return {
         "filename": file.filename,
         "rows": int(df.shape[0]),
         "columns": int(df.shape[1]),
         "column_names": df.columns.tolist(),
-        "preview": preview_df.to_dict(orient="records")
+        "preview": preview_df.to_dict(orient="records"),
+        "profile": profile
     }
