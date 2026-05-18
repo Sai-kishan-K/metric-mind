@@ -5,6 +5,7 @@ from io import BytesIO
 
 from services.profiler import profile_dataframe
 from services.chart_recommender import recommend_charts
+from services.chart_data import generate_chart_payloads
 
 app = FastAPI(
     title="DashPilot AI API",
@@ -87,6 +88,7 @@ async def upload_file(file: UploadFile = File(...)):
 
     profile = profile_dataframe(df)
     recommended_charts = recommend_charts(profile)
+    dashboard_charts = generate_chart_payloads(df, recommended_charts)
 
     return {
         "filename": file.filename,
@@ -95,5 +97,6 @@ async def upload_file(file: UploadFile = File(...)):
         "column_names": df.columns.tolist(),
         "preview": preview_df.to_dict(orient="records"),
         "profile": profile,
-        "recommended_charts": recommended_charts
+        "recommended_charts": recommended_charts,
+        "dashboard_charts": dashboard_charts
     }

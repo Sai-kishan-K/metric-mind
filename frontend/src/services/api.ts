@@ -34,6 +34,10 @@ export type RecommendedChart = {
   reason: string;
 };
 
+export type DashboardChart = RecommendedChart & {
+  data: Record<string, unknown>[];
+};
+
 export type UploadResponse = {
   filename: string;
   rows: number;
@@ -42,6 +46,7 @@ export type UploadResponse = {
   preview: Record<string, unknown>[];
   profile: DatasetProfile;
   recommended_charts: RecommendedChart[];
+  dashboard_charts: DashboardChart[];
 };
 
 export async function uploadDataset(file: File): Promise<UploadResponse> {

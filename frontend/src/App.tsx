@@ -90,7 +90,7 @@ export default function App() {
               <MetricCard label="Orders" value="2.6K" change="+9.8% vs prev." icon={FileSpreadsheet} />
             </div>
 
-            <AutoDashboard />
+            <AutoDashboard dashboardCharts={uploadResult?.dashboard_charts} />
 
             <ChartBuilder chartType={chartType} setChartType={setChartType} />
 
