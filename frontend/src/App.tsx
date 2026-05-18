@@ -14,11 +14,14 @@ import { uploadDataset, type UploadResponse } from "./services/api";
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [chartType, setChartType] = useState("Bar Chart");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const isDark = theme === "dark";
 
   async function handleFileUpload(file: File) {
     try {
@@ -36,16 +39,36 @@ export default function App() {
     }
   }
 
+  function toggleTheme() {
+    setTheme((currentTheme) => (currentTheme === "dark" ? "light" : "dark"));
+  }
+
   return (
-    <main className="min-h-screen overflow-hidden bg-[#020617] text-slate-100">
+    <main
+  className={`min-h-screen overflow-hidden transition-colors duration-300 ${
+    isDark
+      ? "theme-dark bg-[#020617] text-slate-100"
+      : "theme-light bg-slate-100 text-slate-950"
+  }`}
+>
       <div className="pointer-events-none fixed inset-0">
-        <div className="absolute left-[-10%] top-[-10%] h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl" />
-        <div className="absolute right-[-10%] top-[10%] h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[30%] h-[32rem] w-[32rem] rounded-full bg-blue-500/10 blur-3xl" />
+        {isDark ? (
+          <>
+            <div className="absolute left-[-10%] top-[-10%] h-96 w-96 rounded-full bg-cyan-500/20 blur-3xl" />
+            <div className="absolute right-[-10%] top-[10%] h-96 w-96 rounded-full bg-violet-500/20 blur-3xl" />
+            <div className="absolute bottom-[-20%] left-[30%] h-[32rem] w-[32rem] rounded-full bg-blue-500/10 blur-3xl" />
+          </>
+        ) : (
+          <>
+            <div className="absolute left-[-10%] top-[-10%] h-96 w-96 rounded-full bg-cyan-300/30 blur-3xl" />
+            <div className="absolute right-[-10%] top-[10%] h-96 w-96 rounded-full bg-blue-300/30 blur-3xl" />
+            <div className="absolute bottom-[-20%] left-[30%] h-[32rem] w-[32rem] rounded-full bg-violet-200/30 blur-3xl" />
+          </>
+        )}
       </div>
 
       <section className="relative mx-auto max-w-7xl px-5 py-6 lg:px-8">
-        <Navbar />
+        <Navbar theme={theme} toggleTheme={toggleTheme} />
 
         <div className="grid gap-6 py-8 lg:grid-cols-[0.95fr_1.35fr]">
           <div className="space-y-6">
