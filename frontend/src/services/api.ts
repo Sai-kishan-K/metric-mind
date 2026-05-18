@@ -24,6 +24,16 @@ export type DatasetProfile = {
   column_profiles: ColumnProfile[];
 };
 
+export type RecommendedChart = {
+  title: string;
+  chart_type: string;
+  x: string | null;
+  y: string | null;
+  secondary_y?: string | null;
+  aggregation: string | null;
+  reason: string;
+};
+
 export type UploadResponse = {
   filename: string;
   rows: number;
@@ -31,6 +41,7 @@ export type UploadResponse = {
   column_names: string[];
   preview: Record<string, unknown>[];
   profile: DatasetProfile;
+  recommended_charts: RecommendedChart[];
 };
 
 export async function uploadDataset(file: File): Promise<UploadResponse> {
