@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 from io import BytesIO
@@ -6,6 +7,16 @@ from io import BytesIO
 from services.profiler import profile_dataframe
 from services.chart_recommender import recommend_charts
 from services.chart_data import generate_chart_payloads
+from typing import Optional
+
+latest_dataframe = None
+
+
+class CustomChartRequest(BaseModel):
+    chart_type: str
+    x: Optional[str] = None
+    y: Optional[str] = None
+    aggregation: Optional[str] = None   
 
 app = FastAPI(
     title="DashPilot AI API",
@@ -41,6 +52,7 @@ def health_check():
 
 
 def read_uploaded_file(file: UploadFile, file_content: bytes) -> pd.DataFrame:
+    
     filename = file.filename.lower()
 
     try:
@@ -77,6 +89,9 @@ async def upload_file(file: UploadFile = File(...)):
 
     df = read_uploaded_file(file, file_content)
 
+    global latest_dataframe
+    latest_dataframe = df.copy()
+
     if df.empty:
         raise HTTPException(
             status_code=400,
@@ -99,4 +114,39 @@ async def upload_file(file: UploadFile = File(...)):
         "profile": profile,
         "recommended_charts": recommended_charts,
         "dashboard_charts": dashboard_charts
+    }
+
+@app.post("/custom-chart")
+def create_custom_chart(request: CustomChartRequest):
+    global latest_dataframe
+
+    if latest_dataframe is None:
+        raise HTTPException(
+            status_code=400,
+            detail="No dataset uploaded yet. Please upload a CSV or Excel file first."
+        )
+
+    df = latest_dataframe.copy()
+
+    chart = {
+        "title": f"{request.y or request.x or 'Dataset'} by {request.x or 'table'}",
+        "chart_type": request.chart_type,
+        "x": request.x,
+        "y": request.y,
+        "aggregation": request.aggregation,
+        "reason": "Custom chart generated from selected fields."
+    }
+
+    from services.chart_data import generate_chart_payloads
+
+    chart_payloads = generate_chart_payloads(df, [chart])
+
+    if not chart_payloads:
+        raise HTTPException(
+            status_code=400,
+            detail="Could not generate chart with the selected fields."
+        )
+
+    return {
+        "chart": chart_payloads[0]
     }

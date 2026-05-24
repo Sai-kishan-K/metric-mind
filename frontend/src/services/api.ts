@@ -65,3 +65,34 @@ export async function uploadDataset(file: File): Promise<UploadResponse> {
 
   return response.json();
 }
+
+export type CustomChartRequest = {
+  chart_type: string;
+  x: string | null;
+  y: string | null;
+  aggregation: string | null;
+};
+
+export type CustomChartResponse = {
+  chart: DashboardChart;
+};
+
+export async function createCustomChart(
+  request: CustomChartRequest
+): Promise<CustomChartResponse> {
+  const response = await fetch(`${API_BASE_URL}/custom-chart`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.detail || "Failed to create custom chart");
+  }
+
+  return response.json();
+}
+

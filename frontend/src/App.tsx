@@ -12,8 +12,7 @@ import DataChat from "./components/DataChat";
 import { uploadDataset, type UploadResponse } from "./services/api";
 
 export default function App() {
-  const [prompt, setPrompt] = useState("");
-  const [chartType, setChartType] = useState("Bar Chart");
+
   const [theme, setTheme] = useState<"dark" | "light">("dark");
 
   const [uploadResult, setUploadResult] = useState<UploadResponse | null>(null);
@@ -92,11 +91,11 @@ export default function App() {
 
             <AutoDashboard dashboardCharts={uploadResult?.dashboard_charts} />
 
-            <ChartBuilder chartType={chartType} setChartType={setChartType} />
+            <ChartBuilder uploadResult={uploadResult} />
 
             <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr]">
               <SuggestedCharts recommendedCharts={uploadResult?.recommended_charts} />
-              <DataChat prompt={prompt} setPrompt={setPrompt} />
+              <DataChat />
             </div>
           </div>
         </div>
